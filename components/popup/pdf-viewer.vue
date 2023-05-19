@@ -16,6 +16,12 @@
           />
           <div
             class="tw-ml-auto tw-cursor-pointer"
+            @click="downloadFileFromFetch(pdfLink)"
+          >
+            <v-icon>mdi-download</v-icon>
+          </div>
+          <div
+            class="tw-ml-5 tw-cursor-pointer"
             @click="emit('hidePopupPdfViewer')"
           >
             <v-icon>mdi-close</v-icon>
