@@ -37,7 +37,7 @@
 </template>
 
 <script setup lang="ts">
-const linkPdf = ref("https://github.com/wismannur/wismannur/blob/master/static/1658932805662.pdf");
+const linkPdf = ref("https://pdf-viewer-wise.vercel.app/1658932805662.pdf");
 
 const showPopupPdfViewerFullScreen = ref(false);
 </script>

@@ -23,12 +23,12 @@
         </div>
 
         <LoadingCircularDiv
-          v-if="loadedPdf"
+          v-if="loadedPdf && !linkPdfIsError"
           message="Loading, Sedang memuat dokumen..."
           class="tw-mx-auto tw-my-5"
         />
 
-        <div v-else class="tw-w-full">
+        <div v-if="!loadedPdf && !linkPdfIsError" class="tw-w-full">
           <!-- canvas for render pdf -->
           <div
             id="pdf-body"
@@ -56,7 +56,7 @@
               <LazyBtnOutlined label="Zoom In" @click="zoomIn" class="tw-mr-3">
                 <template #append-icon>
                   <v-icon
-                    class="tw-ml-2 xl:tw-ml-3 !tw-text-2xl !tw-text-primary-blue"
+                    class="tw-ml-2 xl:tw-ml-3 !tw-text-2xl !tw-text-sky-500"
                   >
                     mdi-magnify-plus-outline
                   </v-icon>
@@ -66,7 +66,7 @@
               <LazyBtnOutlined label="Zoom Out" @click="zoomOut">
                 <template #append-icon>
                   <v-icon
-                    class="tw-ml-2 xl:tw-ml-3 !tw-text-2xl !tw-text-primary-blue"
+                    class="tw-ml-2 xl:tw-ml-3 !tw-text-2xl !tw-text-sky-500"
                   >
                     mdi-magnify-minus-outline
                   </v-icon>
@@ -90,9 +90,7 @@
                 @click="goPrev"
               >
                 <template #prepend-icon>
-                  <v-icon
-                    class="!tw-text-primary-blue !tw-text-2xl !tw-font-bold"
-                  >
+                  <v-icon class="!tw-text-sky-500 !tw-text-2xl !tw-font-bold">
                     mdi-chevron-left
                   </v-icon>
                 </template>
@@ -104,15 +102,19 @@
                 @click="goNext"
               >
                 <template #prepend-icon>
-                  <v-icon
-                    class="!tw-text-primary-blue !tw-text-2xl !tw-font-bold"
-                  >
+                  <v-icon class="!tw-text-sky-500 !tw-text-2xl !tw-font-bold">
                     mdi-chevron-right
                   </v-icon>
                 </template>
               </LazyBtnOutlined>
             </div>
           </div>
+        </div>
+
+        <div v-if="linkPdfIsError" class="tw-m-auto">
+          <h1 class="tw-text-red-500">
+            your file pdf is wrong or fetch pdf is error
+          </h1>
         </div>
       </div>
     </v-dialog>
@@ -211,20 +213,29 @@ const zoomOut = () => {
   renderPdf();
 };
 
+const linkPdfIsError = ref(false);
+
 const executePdfViewer = () => {
   loadedPdf.value = true;
+  linkPdfIsError.value = false;
 
   const w = window as any;
   const pdfjsLib = w.pdfjsLib;
-  pdfjsLib?.getDocument(props.pdfLink).then((pdf: any) => {
-    pdfState = pdf;
-    pdfCurrentPage.value = 1;
-    pdfPages.value = pdf?.numPages || 0;
-    renderPdf();
+  pdfjsLib
+    ?.getDocument(props.pdfLink)
+    .then((pdf: any) => {
+      pdfState = pdf;
+      pdfCurrentPage.value = 1;
+      pdfPages.value = pdf?.numPages || 0;
+      renderPdf();
 
-    // hide loading circular
-    loadedPdf.value = false;
-  });
+      // hide loading circular
+      loadedPdf.value = false;
+    })
+    .catch((err: any) => {
+      console.error("err fetch pdf ", err);
+      linkPdfIsError.value = true;
+    });
 };
 
 watch(
